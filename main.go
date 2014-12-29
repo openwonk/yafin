@@ -37,7 +37,7 @@ func JSONize(symbol string) {
 	check(err)
 
 	for _, row := range raw {
-		fmt.Printf("%s", row[0])
+		fmt.Printf(">> %s", row[0])
 	}
 
 }
