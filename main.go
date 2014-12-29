@@ -1,9 +1,11 @@
 package yafin
 
 import (
+	"encoding/csv"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -27,10 +29,22 @@ func JSONize(symbol string) {
 
 	fmt.Println(string(data))
 
+	// TODO: iterate through CSV and instert into JSON struct
+
+	reader := csv.NewReader(data)
+
+	raw, err := reader.ReadAll()
+	check(err)
+
+	for _, row := range raw {
+		fmt.Printf("%s", row[0])
+	}
+
 }
 
 func check(err error) {
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(1)
 	}
 }
