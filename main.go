@@ -7,11 +7,6 @@ import (
 	"strings"
 )
 
-// func main() {
-// 	// RequestData("YHOO")
-// 	JSONize("YHOO")
-// }
-
 func RequestData(symbol string) {
 	resp, err := http.Get("http://ichart.finance.yahoo.com/table.csv?s=" + symbol)
 	check(err)
