@@ -22,14 +22,19 @@ func RequestData(symbol string) {
 }
 
 func JSONize(symbol string) {
-	filepath := "data." + strings.ToLower(symbol) + ".csv"
+	// filepath := "data." + strings.ToLower(symbol) + ".csv"
 
-	data, err := ioutil.ReadFile(filepath)
-	check(err)
+	// data, err := ioutil.ReadFile(filepath)
+	// check(err)
 
 	// fmt.Println(string(data))
 
 	// TODO: iterate through CSV and instert into JSON struct
+
+	data, err := os.Open("data." + strings.ToLower(symbol) + ".csv")
+	check(err)
+
+	defer data.Close()
 
 	reader := csv.NewReader(data)
 
