@@ -27,7 +27,7 @@ func JSONize(symbol string) {
 	data, err := ioutil.ReadFile(filepath)
 	check(err)
 
-	fmt.Println(string(data))
+	// fmt.Println(string(data))
 
 	// TODO: iterate through CSV and instert into JSON struct
 
