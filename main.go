@@ -56,7 +56,7 @@ func JsonCSV(symbol string) Stock {
 	jsonData, err := json.Marshal(singleStock)
 	check(err)
 
-	jsonFile, err := os.Create("data." + symbol + ".json")
+	jsonFile, err := os.Create("data." + strings.ToLower(symbol) + ".json")
 	check(err)
 
 	defer jsonFile.Close()
