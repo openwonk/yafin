@@ -23,7 +23,7 @@ func RequestData(symbol string) {
 	check(ioutil.WriteFile("data."+strings.ToLower(symbol)+".csv", body, 0644))
 }
 
-func JSONize(symbol string) Stock {
+func JSONize(symbol string) []byte {
 	data, err := os.Open("data." + strings.ToLower(symbol) + ".csv")
 	check(err)
 	defer data.Close()
@@ -52,7 +52,7 @@ func JSONize(symbol string) Stock {
 	}
 
 	// StockHistory := map[string][]TradingSession{symbol: multiSessions}
-	// MarketHistory := map[string][]TradingSession{symbol: multiSessions}
+	// PortfolioHistory := map[string][]TradingSession{symbol: multiSessions}
 	singleStock := Stock{Name: strings.ToUpper(symbol), History: multiSessions}
 
 	jsonData, err := json.Marshal(singleStock)
@@ -68,21 +68,37 @@ func JSONize(symbol string) Stock {
 	jsonFile.Write(jsonData)
 	jsonFile.Close()
 
-	return Stock
+	return jsonData
 
 }
 
-func GroupStocks(symbols []string) {
-	var m Market
+func CreatePortfolio(symbols []string, name string) {
+	var p []Stock
 
 	for _, v := range symbols {
 		RequestData(v)
 		s := JSONize(v)
-		m = append(m, s)
+		p = append(p, s)
 	}
+
+	folio := Portfolio{Name: name, Stocks: p}
+
+	jsonData, err := json.Marshal(folio)
+	check(err)
+
+	jsonFile, err := os.Create("folio." + strings.ToLower(string(name[:5])) + ".json")
+	check(err)
+
+	defer jsonFile.Close()
+
+	jsonFile.Write(jsonData)
+	jsonFile.Close()
 }
 
-type Market []Stock
+type Portfolio struct {
+	Name   string
+	Stocks []Stock
+}
 
 type Stock struct {
 	Name    string

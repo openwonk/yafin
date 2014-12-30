@@ -1,24 +1,11 @@
 package main
 
 import (
-// yafin "github.com/openwonk/yafin.go"
-// "encoding/csv"
-// "encoding/json"
-// "fmt"
-// "os"
-// "strconv"
-// "strings"
+	"fmt"
+	// yafin "github.com/openwonk/yafin"
 )
 
 func main() {
-	// yafin.RequestData("YHOO")
-	// yafin.JSONize("YHOO")
-
-}
-
-func check(err error) {
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	s := "hola mondo"
+	fmt.Println(string(s[:3]))
 }
