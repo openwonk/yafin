@@ -23,7 +23,7 @@ func RequestData(symbol string) {
 	check(ioutil.WriteFile("data."+strings.ToLower(symbol)+".csv", body, 0644))
 }
 
-func JSONize(symbol string) []byte {
+func JSONize(symbol string) Stock {
 	data, err := os.Open("data." + strings.ToLower(symbol) + ".csv")
 	check(err)
 	defer data.Close()
@@ -68,7 +68,7 @@ func JSONize(symbol string) []byte {
 	jsonFile.Write(jsonData)
 	jsonFile.Close()
 
-	return jsonData
+	return singleStock
 
 }
 
