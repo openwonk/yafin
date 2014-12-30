@@ -11,6 +11,10 @@ import (
 	"strings"
 )
 
+// TODO:
+// - Parse and restructure dates for better searchability
+// - Generate folders (if not exists) for "stock" and "folio" data
+
 func RequestData(symbol string) {
 	resp, err := http.Get("http://ichart.finance.yahoo.com/table.csv?s=" + symbol)
 	check(err)
@@ -20,11 +24,11 @@ func RequestData(symbol string) {
 	check(err)
 
 	// ioutil.TempDir(dir, prefix)
-	check(ioutil.WriteFile("data."+strings.ToLower(symbol)+".csv", body, 0644))
+	check(ioutil.WriteFile("stock."+strings.ToLower(symbol)+".csv", body, 0644))
 }
 
 func JsonCSV(symbol string) Stock {
-	data, err := os.Open("data." + strings.ToLower(symbol) + ".csv")
+	data, err := os.Open("stock." + strings.ToLower(symbol) + ".csv")
 	check(err)
 	defer data.Close()
 
@@ -37,7 +41,6 @@ func JsonCSV(symbol string) Stock {
 	var oneSession TradingSession
 	var multiSessions []TradingSession
 
-	// TODO: skip first row (headers)... maybe if key > 0?
 	for k, row := range raw {
 		if k > 0 {
 			oneSession.Date = row[0]
