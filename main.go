@@ -23,7 +23,7 @@ func RequestData(symbol string) {
 	check(ioutil.WriteFile("data."+strings.ToLower(symbol)+".csv", body, 0644))
 }
 
-func JSONize(symbol string) Stock {
+func JsonCSV(symbol string) Stock {
 	data, err := os.Open("data." + strings.ToLower(symbol) + ".csv")
 	check(err)
 	defer data.Close()
@@ -38,27 +38,23 @@ func JSONize(symbol string) Stock {
 	var multiSessions []TradingSession
 
 	// TODO: skip first row (headers)... maybe if key > 0?
-	for _, row := range raw {
-		// fmt.Printf("%s %s\n", row[0], row[1])
-		oneSession.Date = row[0]
-		oneSession.Open, _ = strconv.ParseFloat(row[1], 64)  // strconv.Atoi(row[1])
-		oneSession.High, _ = strconv.ParseFloat(row[2], 64)  // strconv.Atoi(row[2])
-		oneSession.Low, _ = strconv.ParseFloat(row[3], 64)   // strconv.Atoi(row[3])
-		oneSession.Close, _ = strconv.ParseFloat(row[4], 64) // strconv.Atoi(row[4])
-		oneSession.Volume, _ = strconv.Atoi(row[5])
-		oneSession.AdjClose, _ = strconv.ParseFloat(row[6], 64) // strconv.Atoi(row[6])
-		multiSessions = append(multiSessions, oneSession)
-
+	for k, row := range raw {
+		if k > 0 {
+			oneSession.Date = row[0]
+			oneSession.Open, _ = strconv.ParseFloat(row[1], 64)  // strconv.Atoi(row[1])
+			oneSession.High, _ = strconv.ParseFloat(row[2], 64)  // strconv.Atoi(row[2])
+			oneSession.Low, _ = strconv.ParseFloat(row[3], 64)   // strconv.Atoi(row[3])
+			oneSession.Close, _ = strconv.ParseFloat(row[4], 64) // strconv.Atoi(row[4])
+			oneSession.Volume, _ = strconv.Atoi(row[5])
+			oneSession.AdjClose, _ = strconv.ParseFloat(row[6], 64) // strconv.Atoi(row[6])
+			multiSessions = append(multiSessions, oneSession)
+		}
 	}
 
-	// StockHistory := map[string][]TradingSession{symbol: multiSessions}
-	// PortfolioHistory := map[string][]TradingSession{symbol: multiSessions}
 	singleStock := Stock{Name: strings.ToUpper(symbol), History: multiSessions}
 
 	jsonData, err := json.Marshal(singleStock)
 	check(err)
-
-	// fmt.Println(string(jsonData))
 
 	jsonFile, err := os.Create("data." + symbol + ".json")
 	check(err)
@@ -77,7 +73,7 @@ func CreatePortfolio(symbols []string, name string) {
 
 	for _, v := range symbols {
 		RequestData(v)
-		s := JSONize(v)
+		s := JsonCSV(v)
 		p = append(p, s)
 	}
 
@@ -94,6 +90,19 @@ func CreatePortfolio(symbols []string, name string) {
 	jsonFile.Write(jsonData)
 	jsonFile.Close()
 }
+
+// func JsonFolio(s Portfolio) {
+// 	jsonData, err := json.Marshal(s)
+// 	check(err)
+
+// 	jsonFile, err := os.Create("folio." + strings.ToLower(string(s.Name[:5])) + ".json")
+// 	check(err)
+
+// 	defer jsonFile.Close()
+
+// 	jsonFile.Write(jsonData)
+// 	jsonFile.Close()
+// }
 
 type Portfolio struct {
 	Name   string
