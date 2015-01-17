@@ -14,6 +14,7 @@ import (
 // TODO:
 // - Parse and restructure dates for better searchability
 // - Generate folders (if not exists) for "stock" and "folio" data
+// - Refactor code to be leaner
 
 func RequestData(symbol string) {
 	resp, err := http.Get("http://ichart.finance.yahoo.com/table.csv?s=" + symbol)
