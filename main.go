@@ -1,4 +1,4 @@
-package yafin
+package main
 
 import (
 	"encoding/csv"
@@ -11,24 +11,51 @@ import (
 	"strings"
 )
 
+type Portfolio struct {
+	Name   string
+	Stocks []Stock
+}
+
+type Stock struct {
+	Name    string
+	History []TradingSession
+}
+
+type TradingSession struct {
+	Date     string
+	Open     float64
+	High     float64
+	Low      float64
+	Close    float64
+	Volume   int
+	AdjClose float64
+}
+
 // TODO:
 // - Parse and restructure dates for better searchability
 // - Generate folders (if not exists) for "stock" and "folio" data
 // - Refactor code to be leaner
 
-func RequestData(symbol string) {
-	resp, err := http.Get("http://ichart.finance.yahoo.com/table.csv?s=" + symbol)
-	check(err)
-	defer resp.Body.Close()
+func main() {
+	symbols := []string{"YHOO", "AAPL", "GOOG"}
+	folioName := "Smith" // name of the portfolio (no spaces)
 
-	body, err := ioutil.ReadAll(resp.Body)
+	CreatePortfolio(symbols, folioName)
+}
+
+func GetStock(symbol string) {
+	res, err := http.Get("http://ichart.finance.yahoo.com/table.csv?s=" + symbol)
+	check(err)
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
 	check(err)
 
 	// ioutil.TempDir(dir, prefix)
 	check(ioutil.WriteFile("stock."+strings.ToLower(symbol)+".csv", body, 0644))
 }
 
-func JsonCSV(symbol string) Stock {
+func Jsonify(symbol string) Stock {
 	data, err := os.Open("stock." + strings.ToLower(symbol) + ".csv")
 	check(err)
 	defer data.Close()
@@ -76,56 +103,19 @@ func CreatePortfolio(symbols []string, name string) {
 	var p []Stock
 
 	for _, v := range symbols {
-		RequestData(v)
-		s := JsonCSV(v)
+		GetStock(v)
+		s := Jsonify(v)
 		p = append(p, s)
 	}
 
-	folio := Portfolio{Name: name, Stocks: p}
-
-	jsonData, err := json.Marshal(folio)
+	j, err := json.Marshal(Portfolio{Name: name, Stocks: p})
 	check(err)
 
-	jsonFile, err := os.Create("folio." + strings.ToLower(string(name[:5])) + ".json")
-	check(err)
-
-	defer jsonFile.Close()
-
-	jsonFile.Write(jsonData)
-	jsonFile.Close()
-}
-
-// func JsonFolio(s Portfolio) {
-// 	jsonData, err := json.Marshal(s)
-// 	check(err)
-
-// 	jsonFile, err := os.Create("folio." + strings.ToLower(string(s.Name[:5])) + ".json")
-// 	check(err)
-
-// 	defer jsonFile.Close()
-
-// 	jsonFile.Write(jsonData)
-// 	jsonFile.Close()
-// }
-
-type Portfolio struct {
-	Name   string
-	Stocks []Stock
-}
-
-type Stock struct {
-	Name    string
-	History []TradingSession
-}
-
-type TradingSession struct {
-	Date     string
-	Open     float64
-	High     float64
-	Low      float64
-	Close    float64
-	Volume   int
-	AdjClose float64
+	ioutil.WriteFile(
+		fmt.Sprintf("folio.%s.json", strings.ToLower(string(name[:5]))),
+		j,
+		0777,
+	)
 }
 
 func check(err error) {
